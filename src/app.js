@@ -84,12 +84,18 @@ const resolvers = {
       return result;
     },
     ingredient: async (parent, args, ctx, info) =>{
-      const ingredientID = ObjectID(parent.ingredient);
+
       const { client } = ctx;
 
       const db = client.db("RecipesBook");
       const collection = db.collection("ingredients");
-      const result = await collection.findOne({ _id: ObjectID(ingredientID)});
+
+      const result = parent.ingredient.map(async elem =>{
+        const ingredientInfo = await collection.findOne({_id: ObjectID(elem.id)});
+        console.log(ingredientInfo);
+        return ingredientInfo;
+      });
+      console.log(result);
       return result;
     }
 },
