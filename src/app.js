@@ -1,5 +1,5 @@
 import  {GraphQLServer} from 'graphql-yoga'
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectID} from "mongodb";
 import "babel-polyfill";
 
 const usr = "andresBM";
@@ -28,7 +28,6 @@ const connectToDb = async function(usr, pwd, url) {
  * Starts GraphQL server, with MongoDB Client in context Object
  * @param {client: MongoClinet} context The context for GraphQL Server -> MongoDB Client
  */
-
 
 const runGraphQLServer = function(context){
 const typeDefs = `
@@ -69,36 +68,42 @@ const typeDefs = `
     updateAuthor(id: ID!, name: String, email: String): String!
     updateRecipe(id: ID!, title: String, description: String, ingredient: [ID]): String!
     updateIngredients(id: ID!, name: String!): String!
-    rauthor(id: ID!): Author
+  
   }
 `
 const resolvers = {
+  Recipes:{
+    author: async (parent, args, ctx, info) => {
+      const authorID = ObjectID(parent.author);
+      const { client } = ctx;
+
+      const db = client.db("RecipesBook");
+      const collection = db.collection("authors");
+
+      const result = await collection.findOne({ _id: ObjectID(authorID)});
+      return result;
+    },
+    ingredient: async (parent, args, ctx, info) =>{
+      const ingredientID = ObjectID(parent.ingredient);
+      const { client } = ctx;
+
+      const db = client.db("RecipesBook");
+      const collection = db.collection("ingredients");
+      const result = await collection.findOne({ _id: ObjectID(ingredientID)});
+      return result;
+    }
+},
+Query: {},
+
   
-//   Query: {
-    // author: async(parent, args, ctx, info) => {
-    //     const {id} = args;
-    //     const {client} = ctx;
+  // recipe: (parent, args, ctx, info) => {
+  //   if(!recipesData.some(obj => obj.id === args.id)){
+  //     throw new Error(`Unknow recipe with id ${args.id}`);
+  //   }
+  //   const result = recipesData.find(obj => obj.id === args.id);
+  //   return result;
+  // },
 
-    //     const db = client.db("RecipesBook");
-    //     const collection = db.collection("authors");
-
-    //     const result = await collection.findOne(id);
-       
-    //     return{
-    //         result
-    //     }
-    //   const result = authorData.find(obj => obj.id === args.id);
-    //   return result;
-    // },
-
-//     recipe: (parent, args, ctx, info) => {
-//       if(!recipesData.some(obj => obj.id === args.id)){
-//         throw new Error(`Unknow recipe with id ${args.id}`);
-//       }
-//       const result = recipesData.find(obj => obj.id === args.id);
-//       return result;
-//     },
-  
 //     ingredient: (parent, args, ctx, info) =>{
 //       if(!ingredientsData.some(obj => obj.id === args.id)){
 //         throw new Error(`Unknow ingredient with id ${args.id} `);
@@ -119,17 +124,13 @@ const resolvers = {
     // },
 
 
-
-
-
-
 //     showIngredients: (parent, arg, ctx, info) =>{
 //       const result = ingredientsData.map(element =>{
 //         return element;
 //       });
 //       return result;
 //     }
-//   },
+  
 
 Mutation: {
     addAuthor: async (parent, args, ctx, info) => {
@@ -161,24 +162,26 @@ Mutation: {
             name,
             id: result.ops[0]._id,
         }
-},
+    },
+        
+    addRecipes: async (parent, args, ctx, info) =>{
+        const { title, description, author, ingredient} = args;
+        const date = new Date().getDate();
+        const { client } = ctx;
+
+        const db = client.db("RecipesBook");
+        const collection = db.collection("recipes");
     
-    // addRecipes: async (parent, args, ctx, info) =>{
-    //     const { title, description, author, ingredient} = args;
-    //     const { client } = ctx;
-
-    //     const db = client.db("RecipesBook");
-    //     const collection = db.collection("recipes");
-
-    //     const result = await collection.insertOne({ title, description, author, ingredient });
-    //     return{
-    //         title,
-    //         description, 
-    //         author, 
-    //         ingredient,
-    //         id: result.ops[0]._id
-    //     }
-    //   }
+        const result = await collection.insertOne({title, description, author, ingredient, date});
+        return{
+            title,
+            description, 
+            author, 
+            ingredient,
+            date,
+            id: result.ops[0]._id
+        }
+      }
   },
 
 }
