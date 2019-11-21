@@ -105,53 +105,35 @@ const resolvers = {
       return result;
     }
   },
-  // Ingredient:{
-  //   recipe: async (parent, args, ctx, info) =>{
-  //     const ingredientID = ObjectID(parent.id);
-  //     const { client } = ctx;
-  //     const db = client.db("RecipesBook");
-  //     const collection = db.collection()
-  //   }
-  // },
-Query: {},
+  Ingredients:{
 
-  
-  // recipe: (parent, args, ctx, info) => {
-  //   if(!recipesData.some(obj => obj.id === args.id)){
-  //     throw new Error(`Unknow recipe with id ${args.id}`);
-  //   }
-  //   const result = recipesData.find(obj => obj.id === args.id);
-  //   return result;
-  // },
+  },
 
-//     ingredient: (parent, args, ctx, info) =>{
-//       if(!ingredientsData.some(obj => obj.id === args.id)){
-//         throw new Error(`Unknow ingredient with id ${args.id} `);
-//       }
-//       const result = ingredientsData.find(obj => obj.id === args.id);
-//       return result;
-//     },
+Query: {
+  showRecipes: async (parent, args, ctx, info) =>{
+    const { client } = ctx;
+    const db = client.db("RecipesBook");
+    const collection = db.collection("recipes");
+    const result = await collection.find({}).toArray();
+    return result;
+  },
 
-//     showRecipes: (parent, args, ctx, info) =>{
-//       return recipesData;
-//     },
+  showAuthors: async (parent, args, ctx, info) =>{
+    const { client } = ctx;
+    const db = client.db("RecipesBook");
+    const collection = db.collection("authors");
+    const result = await collection.find({}).toArray();
+    return result;
+  },
 
-    // showAuthors: (parent, args, ctx, info) =>{
-    //   const result = authorData.map(element =>{
-    //     return element;
-    //   });
-    //   return result;
-    // },
-
-
-//     showIngredients: (parent, arg, ctx, info) =>{
-//       const result = ingredientsData.map(element =>{
-//         return element;
-//       });
-//       return result;
-//     }
-  
-
+  showIngredients: async (parent, arg, ctx, info) =>{
+    const { client } = ctx;
+    const db = client.db("RecipesBook");
+    const collection = db.collection("ingredients");
+    const result = await collection.find({}).toArray();
+    return result;
+  }
+},
 Mutation: {
     addAuthor: async (parent, args, ctx, info) => {
         const { name, email } = args;
