@@ -78,11 +78,11 @@ const typeDefs = `
 const resolvers = {
   Author:{
     recipe: async (parent, args, ctx, info) => {
-      const recipeID = ObjectID(parent.id);
+      const recipeID = ObjectID(parent._id);
       const { client } = ctx;
       const db = client.db("RecipesBook");
       const collection = db.collection("recipes");
-      const result = await collection.find({_id: recipeID}).toArray();
+      const result = await collection.find({author: recipeID}).toArray();
       return result;
     },
     id: (parent, args, ctx, info) => {
@@ -93,7 +93,7 @@ const resolvers = {
 
   Recipes:{
     author: async (parent, args, ctx, info) => {
-      const authorID = ObjectID(parent.author);
+      const authorID = parent.author;
       const { client } = ctx;
 
       const db = client.db("RecipesBook");
