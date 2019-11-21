@@ -236,8 +236,19 @@ const resolvers = {
       })();
       return message;
     },
-  },
 
+    removeRecipe: async (parent, args, ctx, info) => {
+      const recipeID = args.id;
+      const { client } = ctx;
+
+      const message = "Remove sucessfully";
+      const db = client.db("RecipesBook");
+      const collection = db.collection("recipes");
+      
+      await collection.deleteOne({_id: ObjectID(recipeID)}); 
+      return message;
+    }   
+  },
 }
 const server = new GraphQLServer({typeDefs, resolvers, context});
 server.start(() => console.log("Server started"));
