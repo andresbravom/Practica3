@@ -100,13 +100,23 @@ const resolvers = {
       const collection = db.collection("ingredients");
       const ingredientArray = parent.ingredient.map(obj => ObjectID(obj));
 
-
       const result = await collection.find({_id:{$in: ingredientArray}}).toArray();
       return result;
     }
   },
   Ingredients:{
+    recipe: async (parent, args, ctx, info) => {
+      const ingredientID = parent._id;
+     
+      const { client } = ctx;
+      const db = client.db ("RecipesBook");
+      const collection = db.collection("recipes");
+      
 
+
+      const result = await collection.find({ingredient: ingredientID}).toArray();
+      return result;
+    }
   },
 
 Query: {
@@ -174,11 +184,11 @@ Mutation: {
         const db = client.db("RecipesBook");
         const collection = db.collection("recipes");
     
-        const result = await collection.insertOne({title, description, author, ingredient, date});
+        const result = await collection.insertOne({title, description, author: ObjectID(author), ingredient: ingredient.map(obj => ObjectID(obj)), date});
         return{
             title,
             description, 
-            author, 
+            author,
             ingredient,
             date,
             id: result.ops[0]._id
