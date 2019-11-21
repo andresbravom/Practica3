@@ -69,7 +69,7 @@ const typeDefs = `
     addIngredients(name: String!): Ingredients!
     removeRecipe(id: ID): String!
     removeAuthor(id: ID): String!
-    removeIngredients(id: ID): String!
+    removeIngredient(id: ID): String!
     updateAuthor(id: ID!, name: String, email: String): String!
     updateRecipe(id: ID!, title: String, description: String, ingredient: [ID]): String!
     updateIngredients(id: ID!, name: String!): String!
@@ -247,7 +247,39 @@ const resolvers = {
       
       await collection.deleteOne({_id: ObjectID(recipeID)}); 
       return message;
-    }   
+    },
+    
+    removeIngredient: async (parent, args, ctx, info) => {
+      const ingredientID = args.id;
+      const { client } = ctx;
+
+      const message = "Remove sucessfully";
+      const db = client.db("RecipesBook");
+      const collectionR = db.collection("recipes");
+      const collectionI = db.collection("ingredients");
+
+      const deleteRecipe = () =>{
+        return new Promise((resolve, reject) =>{
+          const result = collectionR.deleteMany({ingredient: ObjectID(ingredientID)});
+          resolve(result);
+        }
+      )};
+
+      const deleteIngredient = () =>{
+        return new Promise((resolve, reject) =>{
+          const result = collectionI.deleteOne({_id: ObjectID(ingredientID)});
+          resolve(result);
+        }
+      )};
+      (async function(){
+        const asyncFunctions = [
+          deleteRecipe(),
+          deleteIngredient()
+        ];
+        const result = await Promise.all(asyncFunctions);
+      })();
+      return message;
+    },
   },
 }
 const server = new GraphQLServer({typeDefs, resolvers, context});
