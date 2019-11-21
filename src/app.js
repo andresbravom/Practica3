@@ -72,6 +72,17 @@ const typeDefs = `
   }
 `
 const resolvers = {
+  Author:{
+    recipe: async (parent, args, ctx, info) =>{
+      const recipeID = ObjectID(parent.id);
+      const { client } = ctx;
+      const db = client.db("RecipesBook");
+      const collection = db.collection("recipes");
+      const result = await collection.find({_id: recipeID}).toArray();
+      return result;
+    },
+  },
+
   Recipes:{
     author: async (parent, args, ctx, info) => {
       const authorID = ObjectID(parent.author);
@@ -84,21 +95,24 @@ const resolvers = {
       return result;
     },
     ingredient: async (parent, args, ctx, info) =>{
-
       const { client } = ctx;
-
       const db = client.db("RecipesBook");
       const collection = db.collection("ingredients");
+      const ingredientArray = parent.ingredient.map(obj => ObjectID(obj));
 
-      const result = parent.ingredient.map(async elem =>{
-        const ingredientInfo = await collection.findOne({_id: ObjectID(elem.id)});
-        console.log(ingredientInfo);
-        return ingredientInfo;
-      });
-      console.log(result);
+
+      const result = await collection.find({_id:{$in: ingredientArray}}).toArray();
       return result;
     }
-},
+  },
+  // Ingredient:{
+  //   recipe: async (parent, args, ctx, info) =>{
+  //     const ingredientID = ObjectID(parent.id);
+  //     const { client } = ctx;
+  //     const db = client.db("RecipesBook");
+  //     const collection = db.collection()
+  //   }
+  // },
 Query: {},
 
   
