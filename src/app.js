@@ -290,27 +290,20 @@ const resolvers = {
       const db = client.db("RecipesBook");
       const collection = db.collection ("authors");
 
-      const updateName = () =>{
-        return new Promise((resolve, reject) => {
-          const result = collection.updateOne({_id: ObjectID(authorID)}, {$set:{name:args.name}});
-          resolve(result);
+      let jsonUpdate;
+      if(args.name){
+        jsonUpdate = {
+          name: args.name,
+          ...jsonUpdate
         }
-      )};
-
-      const updateEmail = () =>{
-        return new Promise((resolve, reject) => {
-          const result = collection.updateOne({_id: ObjectID(authorID)}, {$set:{email:args.email}});
-          resolve(result);
+      }
+      if(args.email){
+        jsonUpdate = {
+          email: args.email,
+          ...jsonUpdate
         }
-      )};
-      
-      (async function(){
-        const asyncFunctions = [
-          updateName(),
-          updateEmail()
-        ];
-        const result = await Promise.all(asyncFunctions);
-      })();
+      }
+      const result = await collection.updateOne({ _id: ObjectID(authorID)}, {$set: jsonUpdate});
       return message;
     },
     
@@ -355,46 +348,6 @@ const resolvers = {
       const result = await collection.updateOne({ _id: ObjectID(recipeID)}, {$set: jsonUpdate});
       return message;
     }
-
-    // updateRecipe: async (parent, args, ctx, info) => {
-    //   const recipeID = args.id;
-    //   const { client } = ctx;
-
-    //   const message = "Update sucessfuly";
-    //   const db = client.db("RecipesBook");
-    //   const collection = db.collection("recipes");
-
-    //   const updateTitle = () => {
-    //     return new Promise((resolve, reject) =>{
-    //       const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{title:args.title}});
-    //       resolve(result);
-    //     }  
-    //   )};
-
-    //   const updateDescription = () => {
-    //     return new Promise((resolve, reject) =>{
-    //       const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{description:args.description}});
-    //       resolve(result);
-    //     }  
-    //   )};
-
-    //   const updateIngredient = () => {
-    //     return new Promise((resolve, reject) =>{
-    //       const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{ingredient:args.ingredient}});
-    //       resolve(result);
-    //     }  
-    //   )};
-
-    //   (async function(){
-    //     const  asyncFunctions = [
-    //       updateTitle(),
-    //       updateDescription(),
-    //       updateIngredient()
-    //     ];
-    //     const result = await Promise.all(asyncFunctions);
-    //   })();
-    //   return message;
-    // }
   },
 }
 const server = new GraphQLServer({typeDefs, resolvers, context});
