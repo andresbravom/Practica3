@@ -280,6 +280,39 @@ const resolvers = {
       })();
       return message;
     },
+
+    updateAuthor: async (parent, args, ctx, info) =>{
+      const authorID = args.id;
+      const { client } = ctx;
+
+      const message = "Update sucessfuly";
+      const db = client.db("RecipesBook");
+      const collection = db.collection ("authors");
+
+      const updateName = () =>{
+        return new Promise((resolve, reject) => {
+          const result = collection.updateOne({_id: ObjectID(authorID)}, {$set:{name:args.name}});
+          resolve(result);
+        }
+      )};
+
+      const updateEmail = () =>{
+        return new Promise((resolve, reject) => {
+          const result = collection.updateOne({_id: ObjectID(authorID)}, {$set:{email:args.email}});
+          resolve(result);
+        }
+      )};
+      
+      (async function(){
+        const asyncFunctions = [
+          updateName(),
+          updateEmail()
+        ];
+        const result = await Promise.all(asyncFunctions);
+      })();
+      return message;
+    }
+
   },
 }
 const server = new GraphQLServer({typeDefs, resolvers, context});
