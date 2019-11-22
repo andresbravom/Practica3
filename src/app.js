@@ -320,7 +320,48 @@ const resolvers = {
       const message = "Update sucessfuly";
       const db = client.db("RecipesBook");
       const collection = db.collection("ingredients");
+
       const result = await collection.updateOne({_id: ObjectID(ingredientID)}, {$set:{name:args.name}});
+      return message;
+    },
+
+    updateRecipe: async (parent, args, ctx, info) => {
+      const recipeID = args.id;
+      const { client } = ctx;
+
+      const message = "Update sucessfuly";
+      const db = client.db("RecipesBook");
+      const collection = db.collection("recipes");
+
+      const updateTitle = () => {
+        return new Promise((resolve, reject) =>{
+          const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{title:args.title}});
+          resolve(result);
+        }  
+      )};
+
+      const updateDescription = () => {
+        return new Promise((resolve, reject) =>{
+          const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{description:args.description}});
+          resolve(result);
+        }  
+      )};
+
+      const updateIngredient = () => {
+        return new Promise((resolve, reject) =>{
+          const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{ingredient:args.ingredient}});
+          resolve(result);
+        }  
+      )};
+
+      (async function(){
+        const  asyncFunctions = [
+          updateTitle(),
+          updateDescription(),
+          updateIngredient()
+        ];
+        const result = await Promise.all(asyncFunctions);
+      })();
       return message;
     }
   },
