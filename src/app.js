@@ -65,14 +65,14 @@ const typeDefs = `
 
   type Mutation{
     addAuthor(name: String!, email: String!): Author!
-    addRecipes(title: String!, description: String!, author: ID!, ingredient: [ID]!) : Recipes!
-    addIngredients(name: String!): Ingredients!
+    addRecipe(title: String!, description: String!, author: ID!, ingredient: [ID]!) : Recipes!
+    addIngredient(name: String!): Ingredients!
     removeRecipe(id: ID): String!
     removeAuthor(id: ID): String!
     removeIngredient(id: ID): String!
     updateAuthor(id: ID!, name: String, email: String): String!
     updateRecipe(id: ID!, title: String, description: String, ingredient: [ID]): String!
-    updateIngredients(id: ID!, name: String!): String!
+    updateIngredient(id: ID!, name: String!): String!
   }
 `
 const resolvers = {
@@ -173,7 +173,7 @@ const resolvers = {
           id: result.ops[0]._id,
       }
     },
-    addIngredients: async (parent, args, ctx, info) =>{
+    addIngredient: async (parent, args, ctx, info) =>{
       const { name } = args;
       const { client } = ctx;
 
@@ -186,7 +186,7 @@ const resolvers = {
           id: result.ops[0]._id,
       }
     },   
-    addRecipes: async (parent, args, ctx, info) =>{
+    addRecipe: async (parent, args, ctx, info) =>{
       const { title, description, author, ingredient} = args;
       const date = new Date().getDate();
       const { client } = ctx;
@@ -311,8 +311,18 @@ const resolvers = {
         const result = await Promise.all(asyncFunctions);
       })();
       return message;
-    }
+    },
+    
+    updateIngredient: async (parent, args, ctx, info) => {
+      const ingredientID = args.id;
+      const { client } = ctx;
 
+      const message = "Update sucessfuly";
+      const db = client.db("RecipesBook");
+      const collection = db.collection("ingredients");
+      const result = await collection.updateOne({_id: ObjectID(ingredientID)}, {$set:{name:args.name}});
+      return message;
+    }
   },
 }
 const server = new GraphQLServer({typeDefs, resolvers, context});
