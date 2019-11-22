@@ -141,9 +141,21 @@ query{
 }
 ```
 
-## Mongo DB
+## Mongo DB 📸
 In the following images you can see the database of the application distributed in 3 collections
+
+### Authors
+
 ![ImageTest1](https://github.com/andresbravom/Practica3/blob/master/Images/authors.png)
+
+### Recipes
+
+![ImageTest1](https://github.com/andresbravom/Practica3/blob/master/Images/recipes.png)
+
+## Ingredients
+
+![ImageTest1](https://github.com/andresbravom/Practica3/blob/master/Images/ingredients.png)
+
 
 
 
