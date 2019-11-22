@@ -2,6 +2,7 @@ import  {GraphQLServer} from 'graphql-yoga'
 import { MongoClient, ObjectID} from "mongodb";
 import "babel-polyfill";
 import { resolve } from 'dns';
+import { json } from 'body-parser';
 
 const usr = "andresBM";
 const pwd = "qwerty123";
@@ -324,8 +325,7 @@ const resolvers = {
       const result = await collection.updateOne({_id: ObjectID(ingredientID)}, {$set:{name:args.name}});
       return message;
     },
-
-    updateRecipe: async (parent, args, ctx, info) => {
+    updateRecipe: async(parent, args, ctx, info) =>{
       const recipeID = args.id;
       const { client } = ctx;
 
@@ -333,37 +333,68 @@ const resolvers = {
       const db = client.db("RecipesBook");
       const collection = db.collection("recipes");
 
-      const updateTitle = () => {
-        return new Promise((resolve, reject) =>{
-          const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{title:args.title}});
-          resolve(result);
-        }  
-      )};
-
-      const updateDescription = () => {
-        return new Promise((resolve, reject) =>{
-          const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{description:args.description}});
-          resolve(result);
-        }  
-      )};
-
-      const updateIngredient = () => {
-        return new Promise((resolve, reject) =>{
-          const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{ingredient:args.ingredient}});
-          resolve(result);
-        }  
-      )};
-
-      (async function(){
-        const  asyncFunctions = [
-          updateTitle(),
-          updateDescription(),
-          updateIngredient()
-        ];
-        const result = await Promise.all(asyncFunctions);
-      })();
+      let jsonUpdate;
+      if(args.title){
+        jsonUpdate = {
+          title: args.title,
+          ...jsonUpdate
+        }
+      }
+      if(args.description){
+        jsonUpdate = {
+          description: args.description,
+          ...jsonUpdate
+        }
+      }
+      if(args.ingredient){
+        jsonUpdate = {
+          ingredientArray: args.ingredient,
+          ...jsonUpdate
+        }
+      }
+      const result = await collection.updateOne({ _id: ObjectID(recipeID)}, {$set: jsonUpdate});
       return message;
     }
+
+    // updateRecipe: async (parent, args, ctx, info) => {
+    //   const recipeID = args.id;
+    //   const { client } = ctx;
+
+    //   const message = "Update sucessfuly";
+    //   const db = client.db("RecipesBook");
+    //   const collection = db.collection("recipes");
+
+    //   const updateTitle = () => {
+    //     return new Promise((resolve, reject) =>{
+    //       const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{title:args.title}});
+    //       resolve(result);
+    //     }  
+    //   )};
+
+    //   const updateDescription = () => {
+    //     return new Promise((resolve, reject) =>{
+    //       const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{description:args.description}});
+    //       resolve(result);
+    //     }  
+    //   )};
+
+    //   const updateIngredient = () => {
+    //     return new Promise((resolve, reject) =>{
+    //       const result = collection.updateOne({_id: ObjectID(recipeID)}, {$set:{ingredient:args.ingredient}});
+    //       resolve(result);
+    //     }  
+    //   )};
+
+    //   (async function(){
+    //     const  asyncFunctions = [
+    //       updateTitle(),
+    //       updateDescription(),
+    //       updateIngredient()
+    //     ];
+    //     const result = await Promise.all(asyncFunctions);
+    //   })();
+    //   return message;
+    // }
   },
 }
 const server = new GraphQLServer({typeDefs, resolvers, context});
