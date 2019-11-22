@@ -141,6 +141,11 @@ query{
 }
 ```
 
+## Mongo DB
+In the following images you can see the database of the application distributed in 3 collections
+![ImageTest1](https://github.com/andresbravom/Practica3/blob/master/Images/authors.png)
+
+
 
 
 
